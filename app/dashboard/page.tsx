@@ -1,9 +1,21 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
+import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Terminal, Trophy, Flame, BookOpen, Code2, Sparkles } from "lucide-react"
+
+interface UserProfile {
+  id: string
+  email: string
+  full_name: string | null
+  points: number
+  streak_count: number
+  total_lessons_completed: number
+  total_challenges_solved: number
+}
 
 const languages = [
   {
@@ -72,18 +84,66 @@ const languages = [
   },
 ]
 
-// Mock user data for frontend-only version
-const mockUser = {
-  name: "Code Bro",
-  email: "codebro@example.com",
-  completedLessons: 23,
-  challengesSolved: 8,
-  currentStreak: 5,
-  totalPoints: 1240
-}
-
 export default function Dashboard() {
-  const [user] = useState(mockUser)
+  const router = useRouter()
+  const [user, setUser] = useState<UserProfile | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function loadUserData() {
+      const supabase = createClient()
+      
+      // Get authenticated user
+      const { data: { user: authUser }, error: authError } = await supabase.auth.getUser()
+      
+      if (authError || !authUser) {
+        router.push('/auth/signin')
+        return
+      }
+
+      // Get user profile from database
+      const { data: profile, error: profileError } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', authUser.id)
+        .single()
+
+      if (profileError) {
+        console.error('Error fetching profile:', profileError)
+        setLoading(false)
+        return
+      }
+
+      setUser(profile)
+      setLoading(false)
+    }
+
+    loadUserData()
+  }, [router])
+
+  const handleSignOut = async () => {
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    router.push('/')
+  }
+
+  if (loading) {
+    return  <Button variant="outline" size="sm" onClick={handleSignOut}>
+              Sign Out
+            </Button>
+           (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-accent border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading your dashboard...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return null
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -122,22 +182,19 @@ export default function Dashboard() {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Welcome Section */}
-        <div className="mb-12">
-          <h1 className="text-4xl font-bold text-foreground mb-2">
-            Yo, {user.name}! Ready to code?
+        {/* Welcome Sefull_name || user.email?.split("@")[0]}! Ready to code?
           </h1>
           <p className="text-muted-foreground text-lg">Let's master a new programming language today, bro!</p>
         </div>
 
-        {/* Quick Stats - updated to show real data */}
+        {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-12">
           <div className="bg-card border border-border rounded-lg p-6">
             <div className="flex items-center gap-3 mb-3">
               <BookOpen className="w-5 h-5 text-accent" />
               <span className="text-muted-foreground text-sm">Lessons Completed</span>
             </div>
-            <div className="text-3xl font-bold text-foreground">{user.completedLessons}</div>
+            <div className="text-3xl font-bold text-foreground">{user.total_lessons_completed}</div>
             <div className="text-xs text-muted-foreground mt-2">Keep learning!</div>
           </div>
           <div className="bg-card border border-border rounded-lg p-6">
@@ -145,7 +202,7 @@ export default function Dashboard() {
               <Code2 className="w-5 h-5 text-accent" />
               <span className="text-muted-foreground text-sm">Challenges Solved</span>
             </div>
-            <div className="text-3xl font-bold text-foreground">{user.challengesSolved}</div>
+            <div className="text-3xl font-bold text-foreground">{user.total_challenges_solved}</div>
             <div className="text-xs text-muted-foreground mt-2">Keep coding!</div>
           </div>
           <div className="bg-card border border-border rounded-lg p-6">
@@ -153,13 +210,16 @@ export default function Dashboard() {
               <Flame className="w-5 h-5 text-orange-500" />
               <span className="text-muted-foreground text-sm">Current Streak</span>
             </div>
-            <div className="text-3xl font-bold text-foreground">{user.currentStreak} days</div>
+            <div className="text-3xl font-bold text-foreground">{user.streak_count} days</div>
             <div className="text-xs text-muted-foreground mt-2">Stay consistent!</div>
           </div>
           <div className="bg-card border border-border rounded-lg p-6">
             <div className="flex items-center gap-3 mb-3">
               <Trophy className="w-5 h-5 text-yellow-500" />
               <span className="text-muted-foreground text-sm">Total Points</span>
+            </div>
+            <div className="text-3xl font-bold text-foreground">{user.points}</div>
+            <div className="text-xs text-muted-foreground mt-2">Level {Math.floor(user.points / 1000) + 1}
             </div>
             <div className="text-3xl font-bold text-foreground">{user.totalPoints}</div>
             <div className="text-xs text-muted-foreground mt-2">Earn by completing lessons</div>

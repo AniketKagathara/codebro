@@ -1,11 +1,14 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
+import { createClient } from "@/lib/supabase/client"
+import { getAvatarProps, getAvatarClasses } from "@/lib/avatar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Progress } from "@/components/ui/progress"
-import { Terminal, Trophy, Flame, BookOpen, Code2, Award, Calendar, Github } from "lucide-react"
+import { Terminal, Trophy, Flame, BookOpen, Code2, Award, Calendar, Github, Loader2 } from "lucide-react"
 
 interface UserProfile {
   id: string
@@ -76,26 +79,94 @@ const mockProgress: LearningProgress[] = [
 ]
 
 export default function ProfilePage() {
+  const router = useRouter()
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [activeTab, setActiveTab] = useState<"overview" | "achievements" | "progress" | "settings">("overview")
-  const [profile, setProfile] = useState<UserProfile>({
-    id: "1",
-    email: "codebro@example.com",
-    fullName: "Code Bro",
-    username: "codebro",
-    bio: "Mastering programming one lesson at a time!",
-    avatar: "C",
-    level: "Intermediate",
-    points: 1240,
-    streak: 5,
-    lessonsCompleted: 23,
-    challengesSolved: 8,
-    projectsCompleted: 2,
-    joinedDate: "January 2026",
-    github: "github.com/codebro",
-    linkedin: "linkedin.com/in/codebro",
-    website: "codebro.dev",
-  })
+  const [profile, setProfile] = useState<UserProfile | null>(null)
+
+  useEffect(() => {
+    async function loadProfile() {
+      const supabase = createClient()
+      
+      const { data: { user: authUser }, error: authError } = await supabase.auth.getUser()
+      
+      if (authError || !authUser) {
+        router.push('/auth/signin')
+        return
+      }
+
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', authUser.id)
+        .single()
+
+      if (error) {
+        console.error('Error loading profile:', error)
+      } else {
+        setProfile({
+          ...data,
+          joinedDate: new Date(data.created_at).toLocaleDateString('en-US', {
+            month: 'long',
+            year: 'numeric',
+          }),
+        })
+      }
+      
+      setLoading(false)
+    }
+
+    loadProfile()
+  }, [router])
+
+  const handleSaveProfile = async () => {
+    if (!profile) return
+    
+    setSaving(true)
+    const supabase = createClient()
+    
+    const { error } = await supabase
+      .from('users')
+      .update({
+        full_name: profile.fullName,
+        username: profile.username,
+        bio: profile.bio,
+      })
+      .eq('id', profile.id)
+
+    if (error) {
+      console.error('Error updating profile:', error)
+      alert('Failed to update profile')
+    } else {
+      setIsEditing(false)
+    }
+    
+    setSaving(false)
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-accent border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading profile...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!profile) {
+    return null
+  }
+
+  const avatar = getAvatarProps(
+    profile.fullName,
+    profile.email,
+    profile.avatar_type as any,
+    profile.avatar_value
+  )
 
   return (
     <div className="min-h-screen bg-background">
@@ -125,20 +196,20 @@ export default function ProfilePage() {
         <div className="bg-card border border-border rounded-lg p-8 mb-8">
           <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
             {/* Avatar */}
-            <div className="w-24 h-24 bg-accent rounded-full flex items-center justify-center text-4xl font-bold text-accent-foreground">
-              {profile.avatar}
+            <div className={`w-24 h-24 rounded-full ${getAvatarClasses(avatar.type, avatar.value)}`}>
+              {avatar.display}
             </div>
 
             {/* Info */}
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-2">
-                <h1 className="text-3xl font-bold text-foreground">{profile.fullName}</h1>
+                <h1 className="text-3xl font-bold text-foreground">{profile.fullName || profile.email}</h1>
                 <span className="px-3 py-1 bg-accent/10 text-accent rounded-full text-sm font-medium">
-                  {profile.level}
+                  Level {Math.floor((profile.points || 0) / 1000) + 1}
                 </span>
               </div>
-              <p className="text-muted-foreground mb-2">@{profile.username}</p>
-              <p className="text-foreground mb-4">{profile.bio}</p>
+              <p className="text-muted-foreground mb-2">@{profile.username || profile.email?.split('@')[0]}</p>
+              <p className="text-foreground mb-4">{profile.bio || 'Learning to code, bro!'}</p>
               <div className="flex items-center gap-4 text-sm text-muted-foreground">
                 <span className="flex items-center gap-1">
                   <Calendar className="w-4 h-4" />
