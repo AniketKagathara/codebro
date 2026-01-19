@@ -14,7 +14,7 @@ interface LeaderboardUser {
   email: string
   full_name: string | null
   username: string | null
-  avatar_url: string | null
+  avatar_preference: string | null
   points: number
   streak_count: number
   total_lessons_completed: number
@@ -174,8 +174,8 @@ export default function LeaderboardPage() {
               <div className="grid grid-cols-3 gap-4 mb-8">
                 {/* 2nd Place */}
                 <div className="bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 rounded-lg p-6 text-center flex flex-col items-center justify-end pb-8 pt-12">
-                  <div className={`${getAvatarClasses(getAvatarProps(leaderboard[1].full_name || leaderboard[1].email || '', 'lg', leaderboard[1].avatar_url))}`}>
-                    {getAvatarProps(leaderboard[1].full_name || leaderboard[1].email || '', 'lg', leaderboard[1].avatar_url).content}
+                  <div className={getAvatarClasses(getAvatarProps(leaderboard[1].full_name || leaderboard[1].email || '', 'lg'))}>
+                    {getAvatarProps(leaderboard[1].full_name || leaderboard[1].email || '', 'lg').content}
                   </div>
                   <Medal className="w-8 h-8 text-gray-400 mx-auto mb-2 mt-4" />
                   <div className="text-xl font-bold text-foreground mb-1 truncate w-full">
@@ -189,8 +189,8 @@ export default function LeaderboardPage() {
                 {/* 1st Place */}
                 <div className="bg-gradient-to-br from-yellow-100 to-yellow-200 dark:from-yellow-900 dark:to-yellow-950 rounded-lg p-6 text-center flex flex-col items-center justify-end relative">
                   <Crown className="w-12 h-12 text-yellow-500 absolute -top-6 left-1/2 transform -translate-x-1/2" />
-                  <div className={`${getAvatarClasses(getAvatarProps(leaderboard[0].full_name || leaderboard[0].email || '', 'xl', leaderboard[0].avatar_url))}`}>
-                    {getAvatarProps(leaderboard[0].full_name || leaderboard[0].email || '', 'xl', leaderboard[0].avatar_url).content}
+                  <div className={getAvatarClasses(getAvatarProps(leaderboard[0].full_name || leaderboard[0].email || '', 'xl'))}>
+                    {getAvatarProps(leaderboard[0].full_name || leaderboard[0].email || '', 'xl').content}
                   </div>
                   <Trophy className="w-10 h-10 text-yellow-500 mx-auto mb-2 mt-4" />
                   <div className="text-2xl font-bold text-foreground mb-1 truncate w-full">
@@ -203,8 +203,8 @@ export default function LeaderboardPage() {
 
                 {/* 3rd Place */}
                 <div className="bg-gradient-to-br from-amber-100 to-amber-200 dark:from-amber-900 dark:to-amber-950 rounded-lg p-6 text-center flex flex-col items-center justify-end pb-8 pt-12">
-                  <div className={`${getAvatarClasses(getAvatarProps(leaderboard[2].full_name || leaderboard[2].email || '', 'lg', leaderboard[2].avatar_url))}`}>
-                    {getAvatarProps(leaderboard[2].full_name || leaderboard[2].email || '', 'lg', leaderboard[2].avatar_url).content}
+                  <div className={getAvatarClasses(getAvatarProps(leaderboard[2].full_name || leaderboard[2].email || '', 'lg'))}>
+                    {getAvatarProps(leaderboard[2].full_name || leaderboard[2].email || '', 'lg').content}
                   </div>
                   <Medal className="w-8 h-8 text-amber-600 mx-auto mb-2 mt-4" />
                   <div className="text-xl font-bold text-foreground mb-1 truncate w-full">
@@ -249,8 +249,8 @@ export default function LeaderboardPage() {
                       </div>
 
                       {/* Avatar */}
-                      <div className={getAvatarClasses(getAvatarProps(user.full_name || user.email || '', 'md', user.avatar_url))}>
-                        {getAvatarProps(user.full_name || user.email || '', 'md', user.avatar_url).content}
+                      <div className={getAvatarClasses(getAvatarProps(user.full_name || user.email || '', 'md'))}>
+                        {getAvatarProps(user.full_name || user.email || '', 'md').content}
                       </div>
 
                       {/* User Info */}

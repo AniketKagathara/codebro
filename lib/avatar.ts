@@ -97,39 +97,54 @@ export function generateAvatar(
   }
 }
 
-// Get avatar component props
+// Get avatar component props - simplified version
 export function getAvatarProps(
-  name: string | null,
-  email: string,
-  avatarType: AvatarType = 'initials',
-  avatarValue?: string | null
+  nameOrEmail: string,
+  size: 'sm' | 'md' | 'lg' | 'xl' = 'md',
+  customValue?: string | null
 ) {
-  const avatar = generateAvatar(name, email, avatarType)
+  // Extract name from email if it looks like an email
+  const displayName = nameOrEmail?.includes('@') 
+    ? nameOrEmail.split('@')[0] 
+    : nameOrEmail || 'User'
   
-  // If custom value is provided, use it
-  if (avatarValue) {
-    avatar.value = avatarValue
+  const email = nameOrEmail?.includes('@') ? nameOrEmail : `${nameOrEmail}@example.com`
+  
+  // Use initials type by default
+  const avatar = generateAvatar(displayName, email, 'initials')
+  
+  return {
+    content: avatar.display,
+    type: avatar.type,
+    value: avatar.value,
+    size
   }
-  
-  return avatar
 }
 
-// Avatar style classes
-export function getAvatarClasses(type: AvatarType, value: string): string {
-  const baseClasses = 'w-full h-full flex items-center justify-center font-bold'
+// Avatar style classes - updated signature
+export function getAvatarClasses(avatar: { type: AvatarType; value: string; size?: string }): string {
+  const sizeClasses = {
+    sm: 'w-10 h-10 text-sm',
+    md: 'w-12 h-12 text-base',
+    lg: 'w-16 h-16 text-lg',
+    xl: 'w-20 h-20 text-2xl'
+  }
   
-  switch (type) {
+  const size = avatar.size || 'md'
+  const baseClasses = `${sizeClasses[size as keyof typeof sizeClasses]} rounded-full flex items-center justify-center font-bold`
+  
+  switch (avatar.type) {
     case 'emoji':
-      return `${baseClasses} text-4xl`
+      return `${baseClasses} text-4xl bg-secondary`
     
     case 'gradient':
-      return `${baseClasses} bg-gradient-to-br ${value} text-white text-lg`
+      return `${baseClasses} bg-gradient-to-br ${avatar.value} text-white`
     
     case 'pattern':
-      return `${baseClasses} bg-gradient-to-br ${getColorFromString(value)} text-white text-lg`
+      return `${baseClasses} bg-gradient-to-br ${getColorFromString(avatar.value)} text-white`
     
     case 'initials':
     default:
-      return `${baseClasses} bg-gradient-to-br ${value} text-white text-lg`
+      return `${baseClasses} bg-gradient-to-br ${avatar.value} text-white`
   }
 }

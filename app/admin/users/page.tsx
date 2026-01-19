@@ -213,8 +213,8 @@ export default function AdminUsersPage() {
                         <tr key={user.id} className="hover:bg-muted/50 transition-colors">
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center gap-3">
-                              <div className={getAvatarClasses(getAvatarProps(user.full_name || user.email || '', 'sm', user.avatar_url))}>
-                                {getAvatarProps(user.full_name || user.email || '', 'sm', user.avatar_url).content}
+                              <div className={getAvatarClasses(getAvatarProps(user.full_name || user.email || '', 'sm'))}>
+                                {getAvatarProps(user.full_name || user.email || '', 'sm').content}
                               </div>
                               <div>
                                 <div className="font-medium text-foreground">{displayName}</div>

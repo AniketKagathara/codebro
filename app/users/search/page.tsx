@@ -14,8 +14,7 @@ interface SearchUser {
   email: string
   full_name: string | null
   username: string | null
-  avatar_url: string | null
-  avatar_preference: string
+  avatar_preference: string | null
   points: number
   level: number
   streak_count: number
@@ -169,8 +168,8 @@ function UserSearchContent() {
                 >
                   <div className="flex items-center gap-4">
                     {/* Avatar */}
-                    <div className={getAvatarClasses(getAvatarProps(user.full_name || user.email || '', 'lg', user.avatar_url))}>
-                      {getAvatarProps(user.full_name || user.email || '', 'lg', user.avatar_url).content}
+                    <div className={getAvatarClasses(getAvatarProps(user.full_name || user.email || '', 'lg'))}>
+                      {getAvatarProps(user.full_name || user.email || '', 'lg').content}
                     </div>
 
                     {/* User Info */}
