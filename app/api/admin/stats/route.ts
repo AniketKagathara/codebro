@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
       .single();
 
     // For now, check if email contains 'admin' - replace with proper role check
-    const isAdmin = userData?.is_admin === true || userData?.email === process.env.ADMIN_EMAIL;
+    const isAdmin = userData?.email?.includes('admin') || userData?.email === process.env.ADMIN_EMAIL;
     
     if (!isAdmin) {
       return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 });

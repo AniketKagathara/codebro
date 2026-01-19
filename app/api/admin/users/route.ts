@@ -79,7 +79,7 @@ export async function DELETE(request: NextRequest) {
       .eq('id', user.id)
       .single();
 
-    const isAdmin = userData?.is_admin === true || userData?.email === process.env.ADMIN_EMAIL;
+    const isAdmin = userData?.email?.includes('admin') || userData?.email === process.env.ADMIN_EMAIL;
     
     if (!isAdmin) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
@@ -24,7 +24,7 @@ interface SearchUser {
   created_at: string
 }
 
-export default function UserSearchPage() {
+function UserSearchContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const initialQuery = searchParams.get('q') || ''
@@ -227,5 +227,17 @@ export default function UserSearchPage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function UserSearchPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-accent" />
+      </div>
+    }>
+      <UserSearchContent />
+    </Suspense>
   )
 }
