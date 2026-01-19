@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
       // Query users table directly
       const { data, error } = await supabase
         .from('users')
-        .select('id, email, full_name, username, avatar_preference, points, streak_count, total_lessons_completed, total_challenges_solved')
+        .select('id, email, full_name, username, avatar_type, avatar_value, points, streak_count, total_lessons_completed, total_challenges_solved')
         .order('points', { ascending: false })
         .limit(limit);
 
@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
       // Get all users
       const { data: users } = await supabase
         .from('users')
-        .select('id, email, full_name, username, avatar_preference');
+        .select('id, email, full_name, username, avatar_type, avatar_value');
 
       if (!users) {
         return NextResponse.json({ leaderboard: [] });

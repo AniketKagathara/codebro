@@ -82,7 +82,7 @@ export async function GET(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   try {
     const body = await request.json();
-    const { full_name, username, bio, avatar_preference } = body;
+    const { full_name, username, bio, avatar_type, avatar_value } = body;
 
     const supabase = await createClient();
 
@@ -101,7 +101,8 @@ export async function PATCH(request: NextRequest) {
     if (full_name !== undefined) updateData.full_name = full_name;
     if (username !== undefined) updateData.username = username;
     if (bio !== undefined) updateData.bio = bio;
-    if (avatar_preference !== undefined) updateData.avatar_preference = avatar_preference;
+    if (avatar_type !== undefined) updateData.avatar_type = avatar_type;
+    if (avatar_value !== undefined) updateData.avatar_value = avatar_value;
 
     const { data, error } = await supabase
       .from('users')

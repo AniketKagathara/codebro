@@ -14,7 +14,8 @@ interface LeaderboardUser {
   email: string
   full_name: string | null
   username: string | null
-  avatar_preference: string | null
+  avatar_type: string | null
+  avatar_value: string | null
   points: number
   streak_count: number
   total_lessons_completed: number

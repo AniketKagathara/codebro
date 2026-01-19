@@ -125,25 +125,31 @@ export default function ProfilePage() {
     if (!profile) return
     
     setSaving(true)
-    const supabase = createClient()
     
-    const { error } = await supabase
-      .from('users')
-      .update({
-        full_name: profile.fullName,
-        username: profile.username,
-        bio: profile.bio,
+    try {
+      const response = await fetch('/api/user/profile', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          full_name: profile.fullName,
+          username: profile.username,
+          bio: profile.bio,
+        }),
       })
-      .eq('id', profile.id)
 
-    if (error) {
+      if (!response.ok) {
+        throw new Error('Failed to update profile')
+      }
+
+      setIsEditing(false)
+    } catch (error) {
       console.error('Error updating profile:', error)
       alert('Failed to update profile')
-    } else {
-      setIsEditing(false)
+    } finally {
+      setSaving(false)
     }
-    
-    setSaving(false)
   }
 
   if (loading) {

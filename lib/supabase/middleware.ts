@@ -71,11 +71,27 @@ export async function updateSession(request: NextRequest) {
       request.nextUrl.pathname.startsWith('/challenges') ||
       request.nextUrl.pathname.startsWith('/leaderboard') ||
       request.nextUrl.pathname.startsWith('/certificates') ||
-      request.nextUrl.pathname.startsWith('/ai-assistant'))
+      request.nextUrl.pathname.startsWith('/ai-assistant') ||
+      request.nextUrl.pathname.startsWith('/admin'))
   ) {
     const url = request.nextUrl.clone()
     url.pathname = '/auth/signin'
     return NextResponse.redirect(url)
+  }
+
+  // Admin routes - check role
+  if (user && request.nextUrl.pathname.startsWith('/admin')) {
+    const { data: userData } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+    
+    if (userData?.role !== 'admin') {
+      const url = request.nextUrl.clone()
+      url.pathname = '/dashboard'
+      return NextResponse.redirect(url)
+    }
   }
 
   return response

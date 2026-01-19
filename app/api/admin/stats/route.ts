@@ -12,17 +12,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check if user is admin (you can add an is_admin field to users table)
+    // Check if user is admin
     const { data: userData } = await supabase
       .from('users')
-      .select('email')
+      .select('role')
       .eq('id', user.id)
       .single();
 
-    // For now, check if email contains 'admin' - replace with proper role check
-    const isAdmin = userData?.email?.includes('admin') || userData?.email === process.env.ADMIN_EMAIL;
-    
-    if (!isAdmin) {
+    if (userData?.role !== 'admin') {
       return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 });
     }
 

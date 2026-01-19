@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     const searchTerm = `%${query}%`;
     const { data: users, error } = await supabase
       .from('users')
-      .select('id, email, full_name, username, avatar_preference, points, streak_count, total_lessons_completed, total_challenges_solved, created_at')
+      .select('id, email, full_name, username, avatar_type, avatar_value, points, streak_count, total_lessons_completed, total_challenges_solved, created_at')
       .or(`username.ilike.${searchTerm},full_name.ilike.${searchTerm},email.ilike.${searchTerm}`)
       .limit(20);
 
